@@ -28,7 +28,7 @@ jobs:
       - name: Set up Maven settings
         run: |
           mkdir -p ~/.m2
-          echo "<settings><servers><server><id>github</id><username>GITHUB_TOKEN</username><password>${{ secrets.GITHUB_TOKEN }}</password></server></servers></settings>" > ~/.m2/settings.xml
+          echo "<settings><servers><server><id>github</id><username>MariaFernanda1818</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > ~/.m2/settings.xml
 
       # Ejecutar pruebas y compilar el proyecto
       - name: Build and Test
