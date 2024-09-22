@@ -1,0 +1,66 @@
+name: Maven Commons Lib Package
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+
+      - name: Revision del codigo
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'adopt'
+          cache: maven
+
+
+      # Aquí configuramos Maven para que use las credenciales de GitHub
+      - name: Set up Maven settings
+        run: |
+          mkdir -p ~/.m2
+          echo "<settings><servers><server><id>github</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > ~/.m2/settings.xml
+
+      # Ejecutar pruebas y compilar el proyecto
+      - name: Build and Test
+        run: mvn clean verify
+
+      # Incrementamos la versión usando una acción externa
+      - name: Bump version and push tag
+        if: success()
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.TOKEN }}
+          tag_prefix: ''
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
+
+      # Set new version in pom.xml based on the tag
+      - name: Set version in pom.xml
+        if: success()
+        run: |
+          NEW_VERSION=${{ steps.tag_version.outputs.new_tag }}
+          echo "Setting new version $NEW_VERSION in pom.xml"
+          mvn versions:set -DnewVersion=$NEW_VERSION
+          echo "New version set in pom.xml"
+
+      # Build y deploy usando Maven sin necesidad de actualizar el pom.xml en el repositorio
+      - name: Build and Deploy with Maven
+        if: success()
+        run: |
+          mvn clean deploy -Pproduction
+

@@ -23,18 +23,38 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>seguridad</name>
 	<description>Libreria - Ms de seguridad para el sistema donde estara la administaracion de seguridad del back</description>
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Packages</name>
+			<url>https://maven.pkg.github.com/proyecto-sistema-sah/sistema-sah-commons-ms</url> <!-- Cambia USER/REPO a los correctos -->
+		</repository>
+		<snapshotRepository>
+			<id>github</id>
+			<name>GitHub Packages Snapshots</name>
+			<url>https://maven.pkg.github.com/proyecto-sistema-sah/sistema-sah-commons-ms</url>
+		</snapshotRepository>
+	</distributionManagement>
 	<url/>
 	<licenses>
-		<license/>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>https://www.apache.org/licenses/LICENSE-2.0</url>
+			<distribution>repo</distribution>
+		</license>
 	</licenses>
 	<developers>
-		<developer/>
+		<developer>
+			<id>MariaFernanda1818</id>
+			<name>Maria Fernanda Valencia Noreña</name>
+			<email>mariafvn0127@gmail.com</email>
+		</developer>
 	</developers>
 	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
+		<connection>scm:git:git://github.com/proyecto-sistema-sah/sistema-sah-commons-ms.git</connection>
+		<developerConnection>scm:git:ssh://github.com/proyecto-sistema-sah/sistema-sah-commons-ms.git</developerConnection>
+		<url>https://github.com/proyecto-sistema-sah/sistema-sah-commons-ms</url>
+		<tag>HEAD</tag>
 	</scm>
 	<properties>
 		<org.mapstruct.version>1.6.2</org.mapstruct.version>
@@ -109,7 +129,32 @@
 
 	<build>
 		<plugins>
-
+			<!-- Plugin para generar el archivo JAR con el código fuente -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.2.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- Plugin para generar el archivo JAR con la documentación de Java (JavaDoc) -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.3.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -153,7 +198,23 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>2.8.2</version>
+			</plugin>
 		</plugins>
 	</build>
-
+	<profiles>
+		<!-- Perfil para la rama main (producción) -->
+		<profile>
+			<id>production</id>
+			<activation>
+				<property>
+					<name>env</name>
+					<value>prod</value>
+				</property>
+			</activation>
+		</profile>
+	</profiles>
 </project>
