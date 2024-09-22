@@ -24,8 +24,6 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class JwtService implements IJwtService {
 
-    private final IJwtService iJwtService;
-
     final String SECRET_KEY = "550d11d069140b3209b555262015721c511b6155e7e2070379faa1fc69e691ae88c66264b6cf9bf3c61487f5218bb2ce65d7eafe729af334763238196538393f88260e38670e382b9784c7b9ec72a57875c016b3f10e1250b952a09006f05c89056c35ec82a593ce794d94968e7186224b7acb140ae1937d1ce46ba7c682191f0bd32176c95793c0eb55b39ec894356af9512909695a0c2959738e9377914d1d085e9df9688cfa8edd9d1e0e3944a3208073c602e0309b813a2e2a994d396145fe16b8458ba7cae7fad72a75c7186da480bbdf2b290d1121638b4c489dd73f128bc9de18ee30f337955e68bf58767ec9982a5e8c841534bb4e0c1a6777f1fe0b";
 
     @Override
@@ -45,7 +43,7 @@ public class JwtService implements IJwtService {
     }
 
     public AuthResponseDto generarToken(UserSecurityDto usuarioDto){
-        return AuthResponseDto.builder().token(iJwtService.getToken(usuarioDto)).build();
+        return AuthResponseDto.builder().token(getToken(usuarioDto)).build();
     }
 
     public <T> T getClaims(String token, Function<Claims, T> claimsResolver) {
