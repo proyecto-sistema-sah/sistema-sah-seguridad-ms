@@ -27,12 +27,12 @@
 		<repository>
 			<id>github</id>
 			<name>GitHub Packages</name>
-			<url>https://maven.pkg.github.com/proyecto-sistema-sah/sistema-sah-commons-ms</url> <!-- Cambia USER/REPO a los correctos -->
+			<url>https://maven.pkg.github.com/proyecto-sistema-sah/sistema-sah-seguridad-ms</url> <!-- Cambia USER/REPO a los correctos -->
 		</repository>
 		<snapshotRepository>
 			<id>github</id>
 			<name>GitHub Packages Snapshots</name>
-			<url>https://maven.pkg.github.com/proyecto-sistema-sah/sistema-sah-commons-ms</url>
+			<url>https://maven.pkg.github.com/proyecto-sistema-sah/sistema-sah-seguridad-ms</url>
 		</snapshotRepository>
 	</distributionManagement>
 	<url/>
