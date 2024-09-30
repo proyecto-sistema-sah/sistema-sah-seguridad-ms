@@ -34,7 +34,7 @@ public class SpringSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth ->
             auth
-                    .requestMatchers("/v3/api-docs/**", "/doc/**",  "/usuario/**").permitAll()
+                    .requestMatchers("/v3/api-docs/**", "/doc/**",  "/usuario/**", "/tipo-usuario/**").permitAll()
                     .anyRequest().authenticated()
         ).sessionManagement(sessionManager ->
                                 sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
