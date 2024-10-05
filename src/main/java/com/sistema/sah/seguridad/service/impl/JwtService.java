@@ -30,7 +30,10 @@ public class JwtService implements IJwtService {
     @Override
     public String getToken(UsuarioDto usuarioData, UserDetails usuarioDto) {
         Map<String, Object> additionalClaims = new HashMap<>();
-        additionalClaims.put("data", usuarioData);
+        additionalClaims.put("codigoUsuario", usuarioData.getCodigoUsuario());
+        additionalClaims.put("foto", usuarioData.getCodigoImagenUsuario());
+        additionalClaims.put("rol", usuarioData.getTipoUsuarioDtoFk().getNombreTipoUsuario());
+        additionalClaims.put("nombreCompleto", usuarioData.getNombresUsuario() + ' ' + usuarioData.getApellidosUsuario());
         return buildToken(additionalClaims, usuarioDto);
     }
 
@@ -46,8 +49,7 @@ public class JwtService implements IJwtService {
     }
 
     public AuthResponseDto generarToken(UserSecurityDto usuarioDto){
-        UsuarioDto usuarioData = usuarioDto;
-        return AuthResponseDto.builder().token(getToken(usuarioData, usuarioDto)).build();
+        return AuthResponseDto.builder().token(getToken(usuarioDto, usuarioDto)).build();
     }
 
     public <T> T getClaims(String token, Function<Claims, T> claimsResolver) {
