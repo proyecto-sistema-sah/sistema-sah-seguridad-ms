@@ -10,7 +10,7 @@ import java.util.Set;
 public class TokenBlackListService implements ITokenBlackListService {
 
     // Set que actuará como lista negra de los tokens
-    private Set<String> blacklistedTokens = new HashSet<>();
+    public Set<String> blacklistedTokens = new HashSet<>();
 
     @Override
     public void blackListToken(String token) {
