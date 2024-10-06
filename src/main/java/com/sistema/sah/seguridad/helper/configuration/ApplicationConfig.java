@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @RequiredArgsConstructor
@@ -49,6 +51,20 @@ public class ApplicationConfig {
         return username -> {
             UsuarioEntity usuario = usuarioRepository.findByCorreoUsuario(username) .orElseThrow(() -> new UsernameNotFoundException("Email not found"));
             return new UserSecurityDto(usuarioMapper.entityToDto(usuario));
+        };
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")  // Aplica a todas las rutas
+                        .allowedOrigins("http://localhost:4200")  // Solo permite este origen
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .allowCredentials(true);  // Permite el uso de credenciales si es necesario
+            }
         };
     }
 
