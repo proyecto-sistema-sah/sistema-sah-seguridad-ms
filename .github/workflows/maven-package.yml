@@ -28,7 +28,7 @@ jobs:
       - name: Set up Maven settings
         run: |
           mkdir -p ~/.m2
-          echo "<settings><servers><server><id>github</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > ~/.m2/settings.xml
+          echo "<settings><servers><server><id>github-commons</id><username>${{ secrets.USERNAME }}</username><password>${{ secrets.TOKEN }}</password></server></servers></settings>" > ~/.m2/settings.xml
       - name: Cache Maven dependencies
         uses: actions/cache@v3
         with:
