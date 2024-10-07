@@ -54,12 +54,16 @@ public class JwtService implements IJwtService {
         return AuthResponseDto.builder().token(getToken(usuarioDto, usuarioDto)).build();
     }
 
-    public <T> T getClaims(String token, Function<Claims, T> claimsResolver) {
+    private <T> T getClaims(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaims(token);
         return claimsResolver.apply(claims);
     }
 
-    private Date getExpiration(String token) {
+    public String getCodigoUsuario(String token) {
+        return getClaims(token, claims -> claims.get("codigoUsuario", String.class));
+    }
+
+    public Date getExpiration(String token) {
         return getClaims(token, Claims::getExpiration);
     }
 
