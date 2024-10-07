@@ -25,12 +25,12 @@
 	<description>Libreria - Ms de seguridad para el sistema donde estara la administaracion de seguridad del back</description>
 	<distributionManagement>
 		<repository>
-			<id>github</id>
+			<id>github-seguridad</id>
 			<name>GitHub Packages</name>
 			<url>https://maven.pkg.github.com/proyecto-sistema-sah/sistema-sah-seguridad-ms</url> <!-- Cambia USER/REPO a los correctos -->
 		</repository>
 		<snapshotRepository>
-			<id>github</id>
+			<id>github-seguridad</id>
 			<name>GitHub Packages Snapshots</name>
 			<url>https://maven.pkg.github.com/proyecto-sistema-sah/sistema-sah-seguridad-ms</url>
 		</snapshotRepository>
