@@ -60,8 +60,10 @@ public class ApplicationConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")  // Aplica a todas las rutas
-                        .allowedOrigins("http://localhost:4200")  // Solo permite este origen
-                        .allowedOrigins("http://https://sistema-sah-front-mr-ewfqbtgbbna7gca2.mexicocentral-01.azurewebsites.net")  // Solo permite este origen
+                        .allowedOrigins(
+                                "http://localhost:4200",
+                                "https://sistema-sah-front-mr-ewfqbtgbbna7gca2.mexicocentral-01.azurewebsites.net"  // Origen de producción correcto
+                        )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);  // Permite el uso de credenciales si es necesario
