@@ -21,6 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * Servicio para gestionar operaciones relacionadas con tokens JWT.
+ * <p>
+ * Proporciona métodos para generar, validar y extraer información de los tokens JWT.
+ * </p>
+ */
 @Service
 @Log4j2
 @RequiredArgsConstructor
@@ -29,60 +35,145 @@ public class JwtService implements IJwtService {
     @Value("${jwt.secret}")
     private String secretKey;
 
+    private static final long TOKEN_EXPIRATION_MILLIS = 1000 * 60 * 60 * 24; // 24 horas
+
+    /**
+     * Genera un token JWT para un usuario con claims adicionales.
+     *
+     * @param usuarioData los datos del usuario.
+     * @param userDetails los detalles de seguridad del usuario.
+     * @return el token JWT generado.
+     */
     @Override
-    public String getToken(UsuarioDto usuarioData, UserDetails usuarioDto) {
-        Map<String, Object> additionalClaims = new HashMap<>();
-        additionalClaims.put("codigoUsuario", usuarioData.getCodigoUsuario());
-        additionalClaims.put("foto", usuarioData.getCodigoImagenUsuario());
-        additionalClaims.put("rol", usuarioData.getTipoUsuarioDtoFk().getNombreTipoUsuario());
-        additionalClaims.put("nombreCompleto", usuarioData.getNombresUsuario() + ' ' + usuarioData.getApellidosUsuario());
-        return buildToken(additionalClaims, usuarioDto);
+    public String getToken(UsuarioDto usuarioData, UserDetails userDetails) {
+        Map<String, Object> additionalClaims = buildAdditionalClaims(usuarioData);
+        return buildToken(additionalClaims, userDetails);
     }
 
+    /**
+     * Extrae el nombre de usuario del token JWT.
+     *
+     * @param token el token JWT.
+     * @return el nombre de usuario contenido en el token.
+     */
     @Override
     public String getUsernameFromToken(String token) {
         return getClaims(token, Claims::getSubject);
     }
 
+    /**
+     * Valida si un token JWT es válido para un usuario específico.
+     *
+     * @param token       el token JWT.
+     * @param userDetails los detalles del usuario.
+     * @return {@code true} si el token es válido, {@code false} en caso contrario.
+     */
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = getUsernameFromToken(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
-    public AuthResponseDto generarToken(UserSecurityDto usuarioDto){
-        return AuthResponseDto.builder().token(getToken(usuarioDto, usuarioDto)).build();
+    /**
+     * Genera un token JWT encapsulado en un objeto {@link AuthResponseDto}.
+     *
+     * @param userSecurityDto los datos del usuario para la generación del token.
+     * @return un objeto que contiene el token generado.
+     */
+    @Override
+    public AuthResponseDto generarToken(UserSecurityDto userSecurityDto) {
+        return AuthResponseDto.builder()
+                .token(getToken(userSecurityDto, userSecurityDto))
+                .build();
     }
 
-    private <T> T getClaims(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
-
+    /**
+     * Extrae el código del usuario desde un token JWT.
+     *
+     * @param token el token JWT.
+     * @return el código del usuario contenido en el token.
+     */
     public String getCodigoUsuario(String token) {
         return getClaims(token, claims -> claims.get("codigoUsuario", String.class));
     }
 
+    /**
+     * Extrae la fecha de expiración del token JWT.
+     *
+     * @param token el token JWT.
+     * @return la fecha de expiración.
+     */
     public Date getExpiration(String token) {
         return getClaims(token, Claims::getExpiration);
     }
 
+    /**
+     * Verifica si un token JWT ha expirado.
+     *
+     * @param token el token JWT.
+     * @return {@code true} si el token ha expirado, {@code false} en caso contrario.
+     */
     private boolean isTokenExpired(String token) {
         return getExpiration(token).before(new Date());
     }
 
+    /**
+     * Obtiene todos los claims de un token JWT.
+     *
+     * @param token el token JWT.
+     * @return los claims del token.
+     */
     private Claims getAllClaims(String token) {
-        return Jwts.parser().verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey))).build().parseClaimsJws(token).getBody();
+        return Jwts.parser()
+                .setSigningKey(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
-    private String buildToken(Map<String, Object> extraClaims, UserDetails user){
-        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)); // o HS384, HS512 dependiendo de lo que uses
-        return Jwts.builder().claims(extraClaims)
-                .subject(user.getUsername())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+1000*60*24))
-                .signWith(key) // Especifica la clave y el algoritmo
+    /**
+     * Construye un token JWT.
+     *
+     * @param extraClaims los claims adicionales a incluir en el token.
+     * @param userDetails los detalles del usuario.
+     * @return el token JWT generado.
+     */
+    private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        SecretKey key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + TOKEN_EXPIRATION_MILLIS))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
+    /**
+     * Construye los claims adicionales para un token JWT basado en los datos del usuario.
+     *
+     * @param usuarioData los datos del usuario.
+     * @return un mapa de claims adicionales.
+     */
+    private Map<String, Object> buildAdditionalClaims(UsuarioDto usuarioData) {
+        Map<String, Object> additionalClaims = new HashMap<>();
+        additionalClaims.put("codigoUsuario", usuarioData.getCodigoUsuario());
+        additionalClaims.put("foto", usuarioData.getCodigoImagenUsuario());
+        additionalClaims.put("rol", usuarioData.getTipoUsuarioDtoFk().getNombreTipoUsuario());
+        additionalClaims.put("nombreCompleto", usuarioData.getNombresUsuario() + " " + usuarioData.getApellidosUsuario());
+        return additionalClaims;
+    }
+
+    /**
+     * Obtiene un valor específico de los claims del token utilizando un resolver.
+     *
+     * @param token          el token JWT.
+     * @param claimsResolver la función para resolver el valor del claim.
+     * @param <T>            el tipo del valor del claim.
+     * @return el valor resuelto.
+     */
+    private <T> T getClaims(String token, Function<Claims, T> claimsResolver) {
+        Claims claims = getAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
 }
